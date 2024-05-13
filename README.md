@@ -22,6 +22,7 @@ Sturges の公式を用いて、説明変数を分割し、`[0, 1]` の 2 直で
 オプションに `nice_round` を指定すると、閾値を有効数字 1 桁の 1, 2, 5 で丸める。
 
 ```bash
+cd src
 python run.py --nice_round
 ```
 
