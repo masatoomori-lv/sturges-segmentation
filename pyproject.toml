@@ -12,6 +12,7 @@ jupyter = "^1.0.0"
 polars = "^0.20.25"
 pandas = "^2.2.2"
 scikit-learn = "^1.4.2"
+python-dotenv = "^1.0.1"
 
 
 [build-system]
