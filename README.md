@@ -8,7 +8,7 @@ Sturges の公式を用いて、説明変数を分割し、`[0, 1]` の 2 直で
 `./data/input` に説明変数とターゲット変数を格納した csv ファイルを配置する。
 
 同じファイル名の metadata ファイルを `./data/input` に配置し、以下のように記述する。
-metadata ファイルが存在しない場合、全ての説明変数を連続変数として扱い（TBD: [Issue #3(https://github.com/masatoomori-lv/sturges-segmentation/issues/3)]）、target を表すカラムは最初のカラムとする。
+metadata ファイルが存在しない場合、全ての説明変数を連続変数として扱い（TBD: [Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)）、target を表すカラムは最初のカラムとする。
 
 ```json
 {
