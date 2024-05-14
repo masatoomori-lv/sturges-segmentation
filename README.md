@@ -52,7 +52,7 @@ To download and prepare the example data, navigate to the script's directory and
 
 ```bash
 cd ./src/data
-python download_data.py --file_name example_data.csv
+python download_example.py --file_name example_data.csv
 ```
 
 This command will fetch the dataset, apply the necessary transformations, and save it to the designated location.
