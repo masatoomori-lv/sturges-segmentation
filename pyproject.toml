@@ -11,6 +11,7 @@ python = "3.10.14"
 jupyter = "^1.0.0"
 polars = "^0.20.25"
 pandas = "^2.2.2"
+scikit-learn = "^1.4.2"
 
 
 [build-system]
