@@ -1,0 +1,5 @@
+# get current path
+export CURRENT_PATH=$(pwd)
+
+export INPUT_DATA_DIR=$CURRENT_PATH/data/input
+export OUTPUT_DATA_DIR=$CURRENT_PATH/data/output
