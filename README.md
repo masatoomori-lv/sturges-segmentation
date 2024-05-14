@@ -46,6 +46,17 @@ This transformation simplifies the classification task and allows the use of bin
    - Users can specify a different file name by using the `--file_name` command-line argument when running the script.
    - The dataset is stored in the `./data/input` directory. If the `INPUT_DATA_DIR` environment variable is set, the directory specified by this variable will be used instead.
 
+#### Running the Script
+
+To download and prepare the example data, navigate to the script's directory and execute:
+
+```bash
+cd ./src/data
+python download_data.py --file_name example_data.csv
+```
+
+This command will fetch the dataset, apply the necessary transformations, and save it to the designated location.
+
 ## Usage
 
 オプションに `nice_round` を指定すると、閾値を有効数字 1 桁の 1, 2, 5 で丸める。
