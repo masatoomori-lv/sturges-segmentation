@@ -40,7 +40,7 @@ This transformation simplifies the classification task and allows the use of bin
 
 #### Data Preparation and Storage
 
-1. Downloading and Transformation: The script download_data.py is used to download the wine dataset and apply the binary classification transformation as described above. The script modifies the target column based on the most frequent value and adjusts other data fields as necessary.
+1. Downloading and Transformation: The script `download_example.py` is used to download the wine dataset and apply the binary classification transformation as described above. The script modifies the target column based on the most frequent value and adjusts other data fields as necessary.
 1. File Naming and Location:
    - The transformed data is saved as `example_data.csv` by default.
    - Users can specify a different file name by using the `--file_name` command-line argument when running the script.
