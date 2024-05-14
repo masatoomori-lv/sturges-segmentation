@@ -58,6 +58,9 @@ def main():
     # Download data
     df = download_data()
 
+    # Convert to binary classification
+    df = convert_to_binary_classification(df)
+
     # Save data to the specified or default file name
     save_data(df, args.file_name)
 
