@@ -19,8 +19,11 @@ EXAMPLE_DATA_FILE = 'example_data.csv'
 
 def download_data() -> pd.DataFrame:
     """Fetches the wine dataset from scikit-learn and returns it as a pandas DataFrame."""
-    data = load_wine(as_frame=True)
-    return data.frame
+    df = load_wine(as_frame=True).frame
+    # move target column to the beginning
+    df = df[['target'] + [col for col in df.columns if col != 'target']]
+
+    return df
 
 
 def convert_to_binary_classification(df: pd.DataFrame) -> pd.DataFrame:
