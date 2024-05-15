@@ -1,14 +1,17 @@
 # Sturges Segmentation
 
-Sturges の公式を用いて、説明変数を分割し、`[0, 1]` の 2 直で表されるターゲット変数を分割するための閾値を求める。
-説明変数は、連続直、カテゴリ変数のどちらでも対応可能。
+This repository provides a method to find threshold values for segmenting a target variable represented in a binary `[0, 1]` format, using Sturges' formula to segment continuous explanatory variables.
+It calculates the optimal threshold for each combination of two explanatory variables.
+
+TODO: Add support for categorical variables ([Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)).
 
 ## Data
 
-`./data/input` に説明変数とターゲット変数を格納した csv ファイルを配置する。
+Place a CSV file containing the explanatory variables and the target variable in `./data/input`.
 
-同じファイル名の metadata ファイルを `./data/input` に配置し、以下のように記述する。
-metadata ファイルが存在しない場合、全ての説明変数を連続変数として扱い（TBD: [Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)）、target を表すカラムは最初のカラムとする。
+Also, place a metadata file with the same file name in `./data/` input and describe it as follows.
+If a metadata file does not exist, all explanatory variables are treated as continuous variables (TBD: [Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)), and the column representing the target will be the first column.
+Columns not listed under `continuous` or `categorical` will not be used.
 
 ```json
 {
