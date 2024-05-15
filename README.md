@@ -1,14 +1,17 @@
 # Sturges Segmentation
 
-Sturges の公式を用いて、説明変数を分割し、`[0, 1]` の 2 直で表されるターゲット変数を分割するための閾値を求める。
-説明変数は、連続直、カテゴリ変数のどちらでも対応可能。
+This repository provides a method to find threshold values for segmenting a target variable represented in a binary `[0, 1]` format, using Sturges' formula to segment continuous explanatory variables.
+It calculates the optimal threshold for each combination of two explanatory variables.
+
+TODO: Add support for categorical variables ([Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)).
 
 ## Data
 
-`./data/input` に説明変数とターゲット変数を格納した csv ファイルを配置する。
+Place a CSV file containing the explanatory variables and the target variable in `./data/input`.
 
-同じファイル名の metadata ファイルを `./data/input` に配置し、以下のように記述する。
-metadata ファイルが存在しない場合、全ての説明変数を連続変数として扱い（TBD: [Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)）、target を表すカラムは最初のカラムとする。
+Also, place a metadata file with the same file name in `./data/` input and describe it as follows.
+If a metadata file does not exist, all explanatory variables are treated as continuous variables (TBD: [Issue #3](https://github.com/masatoomori-lv/sturges-segmentation/issues/3)), and the column representing the target will be the first column.
+Columns not listed under `continuous` or `categorical` will not be used.
 
 ```json
 {
@@ -59,11 +62,27 @@ This command will fetch the dataset, apply the necessary transformations, and sa
 
 ## Usage
 
-オプションに `nice_round` を指定すると、閾値を有効数字 1 桁の 1, 2, 5 で丸める。
+Output files are saved in `./data/output` for default settings.
 
-```bash
-cd src
-python run.py --nice_round
-```
+### Output Format
 
-`./data/output` に、説明変数を分割するための閾値を格納した csv ファイルが出力される。
+The output file is saved in Excel format and contains the following columns:
+
+| Column Name     | Description                                    |
+| --------------- | ---------------------------------------------- |
+| feature_1       | explanatory variable name 1                    |
+| feature_2       | explanatory variable name 2                    |
+| feature_1_range | rage of explanatory variable 1                 |
+| feature_2_range | rage of explanatory variable 2                 |
+| target          | mean value of target in this segment           |
+| target_pred     | mean value of predicted target in this segment |
+| n_samples       | number of samples in this segment              |
+| proportion      | proportion to total sample size                |
+| base_value      | mean value of target in the entire records     |
+| odds            | mean value of target to base value             |
+| feature_1_lower | lower range of explanatory variable 1          |
+| feature_1_mean  | mean value of explanatory variable 1           |
+| feature_1_upper | upper range of explanatory variable 1          |
+| feature_2_lower | lower range of explanatory variable 2          |
+| feature_2_mean  | mean value of explanatory variable 2           |
+| feature_2_upper | upper range of explanatory variable 2          |

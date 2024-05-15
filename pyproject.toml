@@ -12,6 +12,10 @@ jupyter = "^1.0.0"
 polars = "^0.20.25"
 pandas = "^2.2.2"
 scikit-learn = "^1.4.2"
+python-dotenv = "^1.0.1"
+pygwalker = "^0.4.8.4"
+seaborn = "^0.13.2"
+openpyxl = "^3.1.2"
 
 
 [build-system]

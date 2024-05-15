@@ -1,0 +1,4 @@
+source_up
+
+echo "INPUT_DATA_DIR=$INPUT_DATA_DIR" > .env
+echo "OUTPUT_DATA_DIR=$OUTPUT_DATA_DIR" >> .env
