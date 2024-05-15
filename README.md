@@ -58,12 +58,3 @@ python download_example.py --file_name example_data.csv
 This command will fetch the dataset, apply the necessary transformations, and save it to the designated location.
 
 ## Usage
-
-オプションに `nice_round` を指定すると、閾値を有効数字 1 桁の 1, 2, 5 で丸める。
-
-```bash
-cd src
-python run.py --nice_round
-```
-
-`./data/output` に、説明変数を分割するための閾値を格納した csv ファイルが出力される。
