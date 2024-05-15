@@ -61,3 +61,28 @@ python download_example.py --file_name example_data.csv
 This command will fetch the dataset, apply the necessary transformations, and save it to the designated location.
 
 ## Usage
+
+Output files are saved in `./data/output` for default settings.
+
+### Output Format
+
+The output file is saved in Excel format and contains the following columns:
+
+| Column Name     | Description                                    |
+| --------------- | ---------------------------------------------- |
+| feature_1       | explanatory variable name 1                    |
+| feature_2       | explanatory variable name 2                    |
+| feature_1_range | rage of explanatory variable 1                 |
+| feature_2_range | rage of explanatory variable 2                 |
+| target          | mean value of target in this segment           |
+| target_pred     | mean value of predicted target in this segment |
+| n_samples       | number of samples in this segment              |
+| proportion      | proportion to total sample size                |
+| base_value      | mean value of target in the entire records     |
+| odds            | mean value of target to base value             |
+| feature_1_lower | lower range of explanatory variable 1          |
+| feature_1_mean  | mean value of explanatory variable 1           |
+| feature_1_upper | upper range of explanatory variable 1          |
+| feature_2_lower | lower range of explanatory variable 2          |
+| feature_2_mean  | mean value of explanatory variable 2           |
+| feature_2_upper | upper range of explanatory variable 2          |
