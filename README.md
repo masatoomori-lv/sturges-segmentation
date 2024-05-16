@@ -63,6 +63,30 @@ This command will fetch the dataset, apply the necessary transformations, and sa
 ## Usage
 
 Output files are saved in `./data/output` for default settings.
+If the `OUTPUT_DATA_DIR` environment variable is set, the directory specified by this variable will be used instead.
+
+### Command Line Arguments
+
+The script accepts the following command line arguments to control its behavior:
+
+- `--min_comp_ratio`: Minimum compression ratio (default is 0.05).
+- `--nice_round`: Enable nice rounding (default is False). This is a flag; if specified, it enables nice rounding.
+- `--output_format`: Output format, either `csv` or `xlsx` (default is `csv`).
+
+### Running the Script
+
+To run the script, navigate to the directory containing the script and execute:
+
+```bash
+cd ./src/segmentation
+python tree_numeric_only.py --min_comp_ratio 0.1 --nice_round --output_format xlsx
+```
+
+This command will:
+
+- Set the minimum compression ratio to 0.1.
+- Enable nice rounding.
+- Set the output format to xlsx.
 
 ### Output Format
 
