@@ -162,57 +162,60 @@ def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols:
     return df.copy()
 
 
-# main
-df, file_name = load_data()
+def main():
+    df, file_name = load_data()
+
+    target_col = df.columns[0]
+    pred_col = f'{target_col}_pred'
+    feature_cols = df.drop(target_col, axis=1).columns.tolist()
+    base_value = df[target_col].mean()
+    min_samples = math.ceil(len(df) * MIN_COMP_RATIO)
+
+    # make pairs of feature columns
+    feature_col_pairs = [[feature_cols[i], feature_cols[j]] for i in range(len(feature_cols)) for j in range(i+1, len(feature_cols))]
+
+    df_master = pd.DataFrame()
+    for feature_col_pair in feature_col_pairs:
+        # to align with sturges segmentation, classify records based on midpoints of bins
+        df_x = df[feature_col_pair].copy()
+        feature_cols = list()
+        for feature_col in feature_col_pair:
+            df_x = bin_records(df_x, feature_col, nice_round=NICE_ROUND)
+            df_x[f'bin_{feature_col}_midpoint'] = df_x[[f'bin_{feature_col}_lower', f'bin_{feature_col}_upper']].mean(axis=1)
+            feature_cols.append(f'bin_{feature_col}_midpoint')
+
+        X = df_x[feature_cols]
+        y = df[target_col]
+
+        model = DecisionTreeClassifier(min_samples_leaf=min_samples, min_impurity_decrease=0, random_state=RANDOM_STATE)
+        model.fit(X, y)
+        y_pred = model.predict_proba(X)
+        leaf_nodes = model.apply(X)
+
+        df_pred = df_x.copy()
+        df_pred[target_col] = y
+        df_pred[pred_col] = y_pred[:, 1]
+        df_pred['leaf_node'] = leaf_nodes
+
+        # assessment
+        accuracy = model.score(X, y)
+        logger.debug(f'accuracy of {feature_col_pair}, {accuracy}')
+
+        df_pred = aggregate_records(df_pred, target_col, pred_col, feature_col_pair)
+        df_pred = format_table(df_pred, target_col, pred_col, feature_col_pair, base_value)
+
+        df_master = pd.concat([df_master, df_pred], axis=0).reset_index(drop=True)
+
+    # replace suffix of the output file
+    file_body, file_ext = os.path.splitext(file_name)
+    output_file = os.path.join(OUTPUT_DATA_DIR, file_body + '_segment.{}'.format(OUTPUT_FORMAT))
+    if OUTPUT_FORMAT == 'csv':
+        df_master.to_csv(output_file, index=False)
+    elif OUTPUT_FORMAT == 'xlsx':
+        df_master.to_excel(output_file, index=False)
+    else:
+        raise ValueError(f'Invalid OUTPUT_FORMAT: {OUTPUT_FORMAT}')
 
 
-target_col = df.columns[0]
-pred_col = f'{target_col}_pred'
-feature_cols = df.drop(target_col, axis=1).columns.tolist()
-base_value = df[target_col].mean()
-min_samples = math.ceil(len(df) * MIN_COMP_RATIO)
-
-# make pairs of feature columns
-feature_col_pairs = [[feature_cols[i], feature_cols[j]] for i in range(len(feature_cols)) for j in range(i+1, len(feature_cols))]
-
-df_master = pd.DataFrame()
-for feature_col_pair in feature_col_pairs:
-    # to align with sturges segmentation, classify records based on midpoints of bins
-    df_x = df[feature_col_pair].copy()
-    feature_cols = list()
-    for feature_col in feature_col_pair:
-        df_x = bin_records(df_x, feature_col, nice_round=NICE_ROUND)
-        df_x[f'bin_{feature_col}_midpoint'] = df_x[[f'bin_{feature_col}_lower', f'bin_{feature_col}_upper']].mean(axis=1)
-        feature_cols.append(f'bin_{feature_col}_midpoint')
-
-    X = df_x[feature_cols]
-    y = df[target_col]
-
-    model = DecisionTreeClassifier(min_samples_leaf=min_samples, min_impurity_decrease=0, random_state=RANDOM_STATE)
-    model.fit(X, y)
-    y_pred = model.predict_proba(X)
-    leaf_nodes = model.apply(X)
-
-    df_pred = df_x.copy()
-    df_pred[target_col] = y
-    df_pred[pred_col] = y_pred[:, 1]
-    df_pred['leaf_node'] = leaf_nodes
-
-    # assessment
-    accuracy = model.score(X, y)
-    logger.debug(f'accuracy of {feature_col_pair}, {accuracy}')
-
-    df_pred = aggregate_records(df_pred, target_col, pred_col, feature_col_pair)
-    df_pred = format_table(df_pred, target_col, pred_col, feature_col_pair, base_value)
-
-    df_master = pd.concat([df_master, df_pred], axis=0).reset_index(drop=True)
-
-# replace suffix of the output file
-file_body, file_ext = os.path.splitext(file_name)
-output_file = os.path.join(OUTPUT_DATA_DIR, file_body + '_segment.{}'.format(OUTPUT_FORMAT))
-if OUTPUT_FORMAT == 'csv':
-    df_master.to_csv(output_file, index=False)
-elif OUTPUT_FORMAT == 'xlsx':
-    df_master.to_excel(output_file, index=False)
-else:
-    raise ValueError(f'Invalid OUTPUT_FORMAT: {OUTPUT_FORMAT}')
+if __name__ == '__main__':
+    main()
