@@ -7,10 +7,7 @@ from typing import List, Tuple
 from logging import getLogger, StreamHandler, DEBUG
 
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-import seaborn as sns
-import pygwalker as pyg
+from sklearn.tree import DecisionTreeClassifier
 
 logger = getLogger(__name__)
 handler = StreamHandler()
