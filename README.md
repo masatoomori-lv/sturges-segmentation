@@ -69,8 +69,9 @@ If the `OUTPUT_DATA_DIR` environment variable is set, the directory specified by
 
 The script accepts the following command line arguments to control its behavior:
 
-- `--min_comp_ratio`: Minimum compression ratio (default is 0.05).
+- `--min_comp_ratio`: Minimum composition ratio (default is 0.05).
 - `--nice_round`: Enable nice rounding (default is False). This is a flag; if specified, it enables nice rounding.
+- `--input_file`: Input file name (default is `example_data.csv`).
 - `--output_format`: Output format, either `csv` or `xlsx` (default is `csv`).
 
 ### Running the Script
