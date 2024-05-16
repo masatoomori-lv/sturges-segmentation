@@ -142,8 +142,6 @@ def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols:
         'bin_{}_upper'.format(feature_cols[0]): 'feature_1_upper',
         'bin_{}_lower'.format(feature_cols[1]): 'feature_2_lower',
         'bin_{}_upper'.format(feature_cols[1]): 'feature_2_upper',
-        # 'bin_{}_str'.format(feature_cols[0]): 'feature_1_range',
-        # 'bin_{}_str'.format(feature_cols[1]): 'feature_2_range',
     }, inplace=True)
     df['feature_1'] = feature_cols[0]
     df['feature_2'] = feature_cols[1]
