@@ -41,6 +41,7 @@ def load_data(file_name: str):
 
 
 def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits: int=1) -> List[float]:
+    # Round to the nearest 1, 2, or 5 multiples of significant n_digits
     # TODO: use n_digits
     rounded_numbers = list()
     for number in numbers:
@@ -48,7 +49,6 @@ def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits:
         base = 10 ** exponent
         factor = number / base
 
-        # Determine if it is close to 1, 2, or 5
         if factor < 1.5:
             rounded_numbers.append(1 * base)
         elif factor < 3.5:
@@ -80,10 +80,9 @@ def calculate_thresholds(df: pd.DataFrame, col: str, nice_round: bool) -> List[f
         cut_points = sorted(unique_values)
     else:
         bins = pd.qcut(df[col], q=k, duplicates='drop')
-        cut_points = [df[col].min()] + [bins.cat.categories[i].right for i in range(len(bins.cat.categories))]
+        cut_points = [df[col].min()] + [cat.right for cat in bins.cat.categories]
 
     if nice_round:
-        # Round to the nearest 1, 2, or 5 multiples of one significant digit
         cut_points = round_nice(cut_points, data_min=min(df[col]), data_max=max(df[col]))
 
     return cut_points
