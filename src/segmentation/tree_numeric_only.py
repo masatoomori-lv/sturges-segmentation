@@ -5,6 +5,7 @@ from typing import List, Tuple
 from logging import getLogger, StreamHandler, DEBUG
 
 import pandas as pd
+import polars as pl
 from sklearn.tree import DecisionTreeClassifier
 
 logger = getLogger(__name__)
@@ -36,7 +37,7 @@ def parse_arguments():
 
 def load_data(file_name: str=DEFAULT_INPUT_FILE):
     f = os.path.join(INPUT_DATA_DIR, file_name)
-    return pd.read_csv(f), file_name
+    return pl.scan_csv(f), file_name
 
 
 def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits: int=1) -> List[float]:
@@ -89,9 +90,6 @@ def calculate_thresholds(df: pd.DataFrame, col: str, nice_round: bool) -> List[f
 
 
 def bin_records(df: pd.DataFrame, col: str, nice_round: bool) -> pd.DataFrame:
-    """
-    Merge adjacent records with adjacent values in col and the same predicted result
-    """
     cut_points = calculate_thresholds(df, col, nice_round=nice_round)
 
     # Create a new column with the bin number
@@ -149,7 +147,7 @@ def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols:
     df['feature_2'] = feature_cols[1]
     df['proportion'] = df['n_samples'] / df['n_samples'].sum()
     df['base_value'] = base_value
-    df['odds'] = df[target_col] / df['base_value']
+    df['odds'] = df[target_col] / base_value
     df = df[[
         'feature_1', 'feature_2',
         'feature_1_range', 'feature_2_range',
@@ -167,19 +165,20 @@ def main():
 
     df, file_name = load_data()
 
-    target_col = df.columns[0]
-    pred_col = ''.join([target_col, PRED_COL_SUFFIX])
-    feature_cols = df.drop(target_col, axis=1).columns.tolist()
-    base_value = df[target_col].mean()
-    min_samples = math.ceil(len(df) * args.min_comp_ratio)
+    record_count = df.select(pl.count()).collect().item()
+    logger.debug(f'Number of records: {record_count}')
 
-    # make pairs of feature columns
+    target_col = df.columns[0]
+    pred_col = target_col + PRED_COL_SUFFIX
+    feature_cols = [col for col in df.columns if col != target_col]
+    base_value = df.select(target_col).mean().collect().item()
+    min_samples = math.ceil(record_count * args.min_comp_ratio)
     feature_col_pairs = [[feature_cols[i], feature_cols[j]] for i in range(len(feature_cols)) for j in range(i+1, len(feature_cols))]
 
     df_master = pd.DataFrame()
     for feature_col_pair in feature_col_pairs:
         # to align with sturges segmentation, classify records based on midpoints of bins
-        df_x = df[feature_col_pair].copy()
+        df_x = df.select(feature_col_pair).collect().to_pandas()
         feature_cols = list()
         for feature_col in feature_col_pair:
             df_x = bin_records(df_x, feature_col, nice_round=args.nice_round)
@@ -187,7 +186,7 @@ def main():
             feature_cols.append(f'bin_{feature_col}_midpoint')
 
         X = df_x[feature_cols]
-        y = df[target_col]
+        y = df.select(target_col).collect().to_numpy().flatten()
 
         model = DecisionTreeClassifier(min_samples_leaf=min_samples, min_impurity_decrease=0, random_state=RANDOM_STATE)
         model.fit(X, y)
@@ -208,7 +207,6 @@ def main():
 
         df_master = pd.concat([df_master, df_pred], axis=0).reset_index(drop=True)
 
-    # replace suffix of the output file
     file_body, file_ext = os.path.splitext(file_name)
     output_file = os.path.join(OUTPUT_DATA_DIR, file_body + '_segment.{}'.format(args.output_format))
     if args.output_format == 'csv':
