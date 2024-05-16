@@ -208,7 +208,6 @@ for feature_col_pair in feature_col_pairs:
     df_master = pd.concat([df_master, df_pred], axis=0).reset_index(drop=True)
 
 # replace suffix of the output file
-# check if OUTPUT_FORMAT is not in the file name
 file_body, file_ext = os.path.splitext(file_name)
 output_file = os.path.join(OUTPUT_DATA_DIR, file_body + '_segment.{}'.format(OUTPUT_FORMAT))
 if OUTPUT_FORMAT == 'csv':
