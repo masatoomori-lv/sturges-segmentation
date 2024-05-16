@@ -1,5 +1,6 @@
 import os
 import math
+import argparse
 from typing import List, Tuple
 from logging import getLogger, StreamHandler, DEBUG
 
@@ -13,20 +14,24 @@ logger.setLevel(DEBUG)
 logger.addHandler(handler)
 logger.propagate = False
 
-# Parameters
-MIN_COMP_RATIO = 0.05
-NICE_ROUND = False
-OUTPUT_FORMAT = "csv"   # "csv" or "xlsx"
-
 # Internal constants
 RANDOM_STATE = 42
 DEFAULT_INPUT_FILE = 'example_data.csv'
+PRED_COL_SUFFIX = '_pred'
 
 # Environment variables
 INPUT_DATA_DIR = os.environ.get('INPUT_DATA_DIR')
 OUTPUT_DATA_DIR = os.environ.get('OUTPUT_DATA_DIR')
 assert INPUT_DATA_DIR is not None
 assert OUTPUT_DATA_DIR is not None
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Sturges Segmentation")
+    parser.add_argument('--min_comp_ratio', type=float, default=0.05, help="Minimum composition ratio")
+    parser.add_argument('--nice_round', action='store_true', help="Enable nice rounding")
+    parser.add_argument('--output_format', type=str, default="csv", choices=["csv", "xlsx"], help="Output format")
+    return parser.parse_args()
 
 
 def load_data(file_name: str=DEFAULT_INPUT_FILE):
@@ -158,13 +163,15 @@ def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols:
 
 
 def main():
+    args = parse_arguments()
+
     df, file_name = load_data()
 
     target_col = df.columns[0]
-    pred_col = f'{target_col}_pred'
+    pred_col = ''.join([target_col, PRED_COL_SUFFIX])
     feature_cols = df.drop(target_col, axis=1).columns.tolist()
     base_value = df[target_col].mean()
-    min_samples = math.ceil(len(df) * MIN_COMP_RATIO)
+    min_samples = math.ceil(len(df) * args.min_comp_ratio)
 
     # make pairs of feature columns
     feature_col_pairs = [[feature_cols[i], feature_cols[j]] for i in range(len(feature_cols)) for j in range(i+1, len(feature_cols))]
@@ -175,7 +182,7 @@ def main():
         df_x = df[feature_col_pair].copy()
         feature_cols = list()
         for feature_col in feature_col_pair:
-            df_x = bin_records(df_x, feature_col, nice_round=NICE_ROUND)
+            df_x = bin_records(df_x, feature_col, nice_round=args.nice_round)
             df_x[f'bin_{feature_col}_midpoint'] = df_x[[f'bin_{feature_col}_lower', f'bin_{feature_col}_upper']].mean(axis=1)
             feature_cols.append(f'bin_{feature_col}_midpoint')
 
@@ -203,13 +210,13 @@ def main():
 
     # replace suffix of the output file
     file_body, file_ext = os.path.splitext(file_name)
-    output_file = os.path.join(OUTPUT_DATA_DIR, file_body + '_segment.{}'.format(OUTPUT_FORMAT))
-    if OUTPUT_FORMAT == 'csv':
+    output_file = os.path.join(OUTPUT_DATA_DIR, file_body + '_segment.{}'.format(args.output_format))
+    if args.output_format == 'csv':
         df_master.to_csv(output_file, index=False)
-    elif OUTPUT_FORMAT == 'xlsx':
+    elif args.output_format == 'xlsx':
         df_master.to_excel(output_file, index=False)
     else:
-        raise ValueError(f'Invalid OUTPUT_FORMAT: {OUTPUT_FORMAT}')
+        raise ValueError(f'Invalid OUTPUT_FORMAT: {args.output_format}')
 
 
 if __name__ == '__main__':
