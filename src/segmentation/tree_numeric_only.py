@@ -22,8 +22,8 @@ PRED_COL_SUFFIX = '_pred'
 # Environment variables
 INPUT_DATA_DIR = os.environ.get('INPUT_DATA_DIR')
 OUTPUT_DATA_DIR = os.environ.get('OUTPUT_DATA_DIR')
-assert INPUT_DATA_DIR is not None
-assert OUTPUT_DATA_DIR is not None
+assert INPUT_DATA_DIR is not None, 'INPUT_DATA_DIR is not set'
+assert OUTPUT_DATA_DIR is not None, 'OUTPUT_DATA_DIR is not set'
 
 
 def parse_arguments():
@@ -36,8 +36,8 @@ def parse_arguments():
 
 
 def load_data(file_name: str):
-    f = os.path.join(INPUT_DATA_DIR, file_name)
-    return pl.scan_csv(f)
+    df = pl.scan_csv(os.path.join(INPUT_DATA_DIR, file_name))
+    return df
 
 
 def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits: int=1) -> List[float]:
