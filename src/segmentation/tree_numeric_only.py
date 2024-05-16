@@ -1,23 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
-get_ipython().run_line_magic('load_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
-
-
-# In[ ]:
-
-
-get_ipython().run_line_magic('load_ext', 'dotenv')
-get_ipython().run_line_magic('dotenv', '')
-
-
-# In[ ]:
-
-
 import os
 import math
 from typing import List, Tuple
