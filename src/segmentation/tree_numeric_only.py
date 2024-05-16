@@ -17,7 +17,6 @@ logger.propagate = False
 
 # Internal constants
 RANDOM_STATE = 42
-DEFAULT_INPUT_FILE = 'example_data.csv'
 PRED_COL_SUFFIX = '_pred'
 
 # Environment variables
@@ -31,13 +30,14 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Sturges Segmentation")
     parser.add_argument('--min_comp_ratio', type=float, default=0.05, help="Minimum composition ratio")
     parser.add_argument('--nice_round', action='store_true', help="Enable nice rounding")
+    parser.add_argument('--input_file', type=str, default="example_data.csv", help="Input file")
     parser.add_argument('--output_format', type=str, default="csv", choices=["csv", "xlsx"], help="Output format")
     return parser.parse_args()
 
 
-def load_data(file_name: str=DEFAULT_INPUT_FILE):
+def load_data(file_name: str):
     f = os.path.join(INPUT_DATA_DIR, file_name)
-    return pl.scan_csv(f), file_name
+    return pl.scan_csv(f)
 
 
 def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits: int=1) -> List[float]:
@@ -162,8 +162,9 @@ def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols:
 
 def main():
     args = parse_arguments()
+    file_name = args.input_file
 
-    df, file_name = load_data()
+    df = load_data(file_name)
 
     record_count = df.select(pl.count()).collect().item()
     logger.debug(f'Number of records: {record_count}')
