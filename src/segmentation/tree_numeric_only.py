@@ -12,10 +12,6 @@ from sklearn.tree import DecisionTreeClassifier, plot_tree
 import seaborn as sns
 import pygwalker as pyg
 
-
-# In[ ]:
-
-
 logger = getLogger(__name__)
 handler = StreamHandler()
 handler.setLevel(DEBUG)
@@ -23,28 +19,14 @@ logger.setLevel(DEBUG)
 logger.addHandler(handler)
 logger.propagate = False
 
-
-# ## environment variables
-
-# In[ ]:
-
-
 # Parameters
 MIN_COMP_RATIO = 0.05
 NICE_ROUND = False
 OUTPUT_FORMAT = "csv"   # "csv" or "xlsx"
 
-
-# In[ ]:
-
-
 # Internal constants
 RANDOM_STATE = 42
 DEFAULT_INPUT_FILE = 'example_data.csv'
-
-
-# In[ ]:
-
 
 # Environment variables
 INPUT_DATA_DIR = os.environ.get('INPUT_DATA_DIR')
@@ -53,17 +35,9 @@ assert INPUT_DATA_DIR is not None
 assert OUTPUT_DATA_DIR is not None
 
 
-# ## functions
-
-# In[ ]:
-
-
 def load_data(file_name: str=DEFAULT_INPUT_FILE):
     f = os.path.join(INPUT_DATA_DIR, file_name)
     return pd.read_csv(f), file_name
-
-
-# In[ ]:
 
 
 def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits: int=1) -> List[float]:
@@ -94,9 +68,6 @@ def round_nice(numbers: List[float], data_min: float, data_max: float, n_digits:
     return rounded_numbers
 
 
-# In[ ]:
-
-
 def calculate_thresholds(df: pd.DataFrame, col: str, nice_round: bool) -> List[float]:
     n = df[col].count()
     k = int(1 + math.log2(n))  # Sturges' formula
@@ -118,9 +89,6 @@ def calculate_thresholds(df: pd.DataFrame, col: str, nice_round: bool) -> List[f
     return cut_points
 
 
-# In[ ]:
-
-
 def bin_records(df: pd.DataFrame, col: str, nice_round: bool) -> pd.DataFrame:
     """
     Merge adjacent records with adjacent values in col and the same predicted result
@@ -134,9 +102,6 @@ def bin_records(df: pd.DataFrame, col: str, nice_round: bool) -> pd.DataFrame:
     df[f'bin_{col}_str'] = df[f'bin_{col}'].apply(lambda x: f'{x.left} < {col} <= {x.right}')
 
     return df
-
-
-# In[ ]:
 
 
 def aggregate_records(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols: List[str]) -> pd.DataFrame:
@@ -172,9 +137,6 @@ def aggregate_records(df: pd.DataFrame, target_col: str, pred_col: str, feature_
     return df
 
 
-# In[ ]:
-
-
 def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols: List[str], base_value: float) -> pd.DataFrame:
     df.rename(columns={
         feature_cols[0]: 'feature_1_mean',
@@ -203,29 +165,8 @@ def format_table(df: pd.DataFrame, target_col: str, pred_col: str, feature_cols:
     return df.copy()
 
 
-# ## main
-
-# In[ ]:
-
-
 # main
 df, file_name = load_data()
-
-
-# In[ ]:
-
-
-# sns.pairplot(df)
-
-
-# In[ ]:
-
-
-# put index to Details field
-# pyg.walk(df.reset_index())
-
-
-# In[ ]:
 
 
 target_col = df.columns[0]
@@ -236,10 +177,6 @@ min_samples = math.ceil(len(df) * MIN_COMP_RATIO)
 
 # make pairs of feature columns
 feature_col_pairs = [[feature_cols[i], feature_cols[j]] for i in range(len(feature_cols)) for j in range(i+1, len(feature_cols))]
-
-
-# In[ ]:
-
 
 df_master = pd.DataFrame()
 for feature_col_pair in feature_col_pairs:
@@ -264,24 +201,14 @@ for feature_col_pair in feature_col_pairs:
     df_pred[pred_col] = y_pred[:, 1]
     df_pred['leaf_node'] = leaf_nodes
 
-    # plot_tree(model, feature_names=feature_col_pair, class_names=[f'not {target_col}', target_col], filled=True)
-
     # assessment
     accuracy = model.score(X, y)
     logger.debug(f'accuracy of {feature_col_pair}, {accuracy}')
-    # fig = df_pred.plot.scatter(x=feature_col_pair[0], y=feature_col_pair[1], c=pred_col, colormap='viridis')
-    # plt.show()
 
     df_pred = aggregate_records(df_pred, target_col, pred_col, feature_col_pair)
     df_pred = format_table(df_pred, target_col, pred_col, feature_col_pair, base_value)
 
     df_master = pd.concat([df_master, df_pred], axis=0).reset_index(drop=True)
-
-df_master
-
-
-# In[ ]:
-
 
 # replace suffix of the output file
 # check if OUTPUT_FORMAT is not in the file name
@@ -293,4 +220,3 @@ elif OUTPUT_FORMAT == 'xlsx':
     df_master.to_excel(output_file, index=False)
 else:
     raise ValueError(f'Invalid OUTPUT_FORMAT: {OUTPUT_FORMAT}')
-
